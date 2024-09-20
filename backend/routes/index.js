@@ -2,10 +2,8 @@
 const express = require("express");
 const router = express.Router();
 const apiRouter = require('./api');
-// router.get('/hello/world', function (req, res) {
-//     res.cookie('XSRF-TOKEN', req.csrfToken());
-//     res.send('Hello World!');
-// });
+
+
 router.use('/api', apiRouter);
 // backend/routes/index.js
 // ...
@@ -19,7 +17,9 @@ router.get("/api/csrf/restore", (req, res) => {
 });
 // backend/routes/index.js
 // ...
-
+router.post('/test', function (req, res) {
+  res.json({ requestBody: req.body });
+});
 
 
 // ...
