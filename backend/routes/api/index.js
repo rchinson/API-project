@@ -11,7 +11,9 @@ const { User } = require('../../db/models');
 const { restoreUser } = require('../../utils/auth.js');
 
 const { requireAuth } = require('../../utils/auth.js');
+const apiRouter = require('./api');
 
+router.use('/api', apiRouter);
 
 router.use(restoreUser);
 
