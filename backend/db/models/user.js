@@ -6,6 +6,11 @@ module.exports = (sequelize, DataTypes) => {
   class User extends Model {
     static associate(models) {
       // define association here
+      //StudentClassroom.belongsTo(models.Classroom);
+      User.hasMany(models.Spot,{
+        foreignKey:"ownerId",
+        onDelete: 'CASCADE'
+      })
     }
   }
 
