@@ -12,6 +12,11 @@ const { restoreUser } = require("../../utils/auth.js");
 
 const { requireAuth } = require("../../utils/auth.js");
 
+const spotsRouter = require('./routes/api/spots');
+
+app.use('/api/spots', spotsRouter);
+
+
 router.use(restoreUser);
 
 router.use("/session", sessionRouter);
