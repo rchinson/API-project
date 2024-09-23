@@ -27,7 +27,7 @@ const validateLogin = [
 
 
 
-
+// LOG In
 router.post(
   "/", 
   validateLogin,
@@ -67,6 +67,7 @@ router.post(
       user: safeUser,
     });
 });
+
 
 router.get(
   '/',
