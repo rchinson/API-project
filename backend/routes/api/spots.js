@@ -1,56 +1,39 @@
 const express = require("express");
 const { Op } = require("sequelize");
 const bcrypt = require("bcryptjs");
-const { check } = require('express-validator');
-const { handleValidationErrors } = require('../../utils/validation');
+const { check } = require("express-validator");
+const { handleValidationErrors } = require("../../utils/validation");
 
 const { setTokenCookie, restoreUser } = require("../../utils/auth");
-const { User } = require("../../db/models");
-
-
+const { Spot, User } = require("../../db/models");
+const spot = require("../../db/models/spot");
 
 const router = express.Router();
 
+router.get("/", async (req, res) => {
+  const spots = await Spot.findAll({
+    attributes: [
+      "id",
+      "ownerId",
+      "address",
+      "city",
+      "state",
+      "country",
+      "lat",
+      "lng",
+      "name",
+      "description",
+      "price",
+      "createdAt",
+      "updatedAt",
+      "avgRating",
+      "previewImage",
+    ],
+  });
 
-router.get(
-    '/',
-    (req, res) => {
-      const { user } = req;
-      if (user) {
-        const safeUser = {
-          id: user.id,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          email: user.email,
-          username: user.username,
-        };
-        return res.json({
-          user: safeUser
-        });
-      } else return res.json({ user: null });
-    }
+  return res.json(spots);
+});
 
-)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+return res.json(spots);
 
 module.exports = router;
