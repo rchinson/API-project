@@ -10,8 +10,54 @@ const spot = require("../../db/models/spot");
 
 const router = express.Router();
 
+router.get(
+  "/current",
+
+  async (req, res) => {
+    const { user } = req;
+
+    let spots = [];
+
+    spots = await Spot.findAll({
+      attributes: [
+        "id",
+        "ownerId",
+        "address",
+        "city",
+        "state",
+        "country",
+        "lat",
+        "lng",
+        "name",
+        "description",
+        "price",
+        "createdAt",
+        "updatedAt",
+      ],
+      where: { ownerId: user.id },
+    });
+
+    res.status(200);
+    res.json({ spots });
+  }
+);
+router.get(
+  "/:spotId",
+
+  async (req, res) => {
+    let spot;
+
+    spot = await Spot.findByPk(req.params.spotId);
+
+    res.status(200);
+    res.json({ spot });
+  }
+);
+
 router.get("/", async (req, res) => {
-  const spots = await Spot.findAll({
+  let spots = [];
+
+  spots = await Spot.findAll({
     attributes: [
       "id",
       "ownerId",
@@ -26,14 +72,10 @@ router.get("/", async (req, res) => {
       "price",
       "createdAt",
       "updatedAt",
-      "avgRating",
-      "previewImage",
     ],
   });
-
-  return res.json(spots);
+  res.status(200);
+  res.json({ spots });
 });
-
-return res.json(spots);
 
 module.exports = router;

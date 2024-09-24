@@ -9,7 +9,6 @@ module.exports = {
     await Spot.bulkCreate(
       [
         {
-          id: 1,
           address: "81 north street",
           city: "austin",
           state: "OHIO",
@@ -21,7 +20,6 @@ module.exports = {
           ownerId: 1,
         },
         {
-          id: 2,
           address: "72 south street",
           city: "miami",
           state: "FLORIDA",
@@ -32,6 +30,50 @@ module.exports = {
           price: 3232.51,
           ownerId: 1,
         },
+        {
+          address: "723 north street",
+          city: "austin",
+          state: "OHIO",
+          country: "USA",
+          lat: 72.4173,
+          lng: 100.9071,
+          name: "The-Get-away",
+          price: 8000.51,
+          ownerId: 2,
+        },
+        // {
+        //   address: "200 south street",
+        //   city: "miami",
+        //   state: "FLORIDA",
+        //   country: "USA",
+        //   lat: 125.7617,
+        //   lng: 180.1918,
+        //   name: "POLKA-get-away",
+        //   price: 7222.51,
+        //   ownerId: 5,
+        // },
+        // {
+        //   address: "720 north street",
+        //   city: "chance",
+        //   state: "kentucky",
+        //   country: "USA",
+        //   lat: 240.4173,
+        //   lng: 382.9071,
+        //   name: "Kentucky-Get-away",
+        //   price: 5622.51,
+        //   ownerId: 3,
+        // },
+        // {
+        //   address: "600 south street",
+        //   city: "newyork",
+        //   state: "Newyork",
+        //   country: "USA",
+        //   lat: 225.7617,
+        //   lng: 480.1918,
+        //   name: "Newyork-get-away",
+        //   price: 10522.51,
+        //   ownerId: 4,
+        // },
       ],
       { validate: true }
     );
@@ -47,6 +89,8 @@ module.exports = {
   },
 
   async down(queryInterface, Sequelize) {
+    await queryInterface.bulkDelete("Spot");
+
     /**
      * Add commands to revert seed here.
      *
