@@ -44,7 +44,7 @@ module.exports = {
           url: 'https://en.wikipedia.org/wiki/Statue_of_Liberty#/media/File:Front_view_of_Statue_of_Liberty_with_pedestal_and_base_2024.jpg',
           preview: true,
         },
-        { validate: true }
+        
       ],
       
     );

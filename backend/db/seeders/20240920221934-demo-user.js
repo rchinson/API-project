@@ -69,7 +69,7 @@ module.exports = {
           username: "bobuser",
           hashedPassword: bcrypt.hashSync("bobpassword"),
         },
-        { validate: true }
+       
       ],
       
     );

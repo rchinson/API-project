@@ -65,7 +65,7 @@ module.exports = {
         startDate: "10-10-2010",
         endDate: "10-10-2010",
       },
-      {validate: true}
+      
     ]);
 
     /**

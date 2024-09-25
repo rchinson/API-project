@@ -95,7 +95,7 @@ module.exports = {
           price: 8000.51,
           ownerId: 6,
         },
-        { validate: true }
+       
 
 
       ],

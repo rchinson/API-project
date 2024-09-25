@@ -67,7 +67,7 @@ module.exports = {
         review: "NOT GOOD",
         stars: 2,
       },
-      { validate: true }
+     
     ]);
 
     /**
