@@ -13,9 +13,6 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "spotId",
         onDelete: "CASCADE",
       });
-
-
-
     }
   }
   SpotImage.init(
@@ -23,12 +20,17 @@ module.exports = (sequelize, DataTypes) => {
       id: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        unique:true,
-        primaryKey:true
+        autoIncrement: true,
+        unique: true,
+        primaryKey: true,
       },
       spotId: {
         type: DataTypes.INTEGER,
         allowNull: false,
+        references: {
+          model: "Spots",
+          key: "id",
+        },
       },
       url: {
         type: DataTypes.STRING,
@@ -37,6 +39,7 @@ module.exports = (sequelize, DataTypes) => {
       preview: {
         type: DataTypes.BOOLEAN,
         allowNull: false,
+        defaultValue: false,
       },
       createdAt: {
         type: DataTypes.DATE,
