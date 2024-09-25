@@ -9,6 +9,29 @@ const { Spot, User, Review, ReviewImage } = require("../../db/models");
 const review = require("../../db/models/review");
 const router = express.Router();
 
+router.put("/:reviewId", async (req, res) => {
+  const { reviewId } = req.params;
+  const { userId, spotId, review, stars } = req.body;
+
+  review = await Review.findByPk(reviewId);
+
+  review.userId = userId || review.userId;
+  review.spotId = spotId || review.spotId;
+  review.review = review || review.review;
+  review.stars = stars || review.stars;
+  await review.save();
+
+  return res.json({
+    id: review.id,
+    userId: review.userId,
+    spotId: review.spotId,
+    review: review.review,
+    stars: review.stars,
+    createdAt: review.createdAt,
+    updatedAt: review.updatedAt,
+  });
+});
+
 router.post("/:reviewId/images", async (req, res) => {
   const { reviewId } = req.params;
   const { url } = req.body;
