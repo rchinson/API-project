@@ -33,6 +33,20 @@ const validateSpot = [
   check("price").isDecimal().withMessage("Price must be a decimal value."),
 ];
 
+router.post("/:spotId/reviews", async (req, res) => {
+  const { userId,review,stars } = req.body;
+  const { spotId } = req.params;
+
+  const spot = await Spot.findByPk(spotId);
+  const newReview = await Review.create({
+    userId,
+    spotId,
+    review,
+    stars,
+  });
+  return res.status(201).json(newReview);
+});
+
 router.get("/:spotId/reviews", async (req, res) => {
   const { spotId } = req.params;
 

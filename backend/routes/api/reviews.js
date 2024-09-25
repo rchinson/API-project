@@ -9,7 +9,19 @@ const { Spot, User, Review, ReviewImage } = require("../../db/models");
 const review = require("../../db/models/review");
 const router = express.Router();
 
+router.post("/:reviewId/images", async (req, res) => {
+  const { reviewId } = req.params;
+  const { url } = req.body;
 
+  const review = await Spot.findByPk(reviewId);
+
+  const newImage = await ReviewImage.create({
+    reviewId: review.id,
+    url,
+  });
+
+  return res.json(newImage);
+});
 
 router.get("/current", async (req, res) => {
   const { user } = req;
