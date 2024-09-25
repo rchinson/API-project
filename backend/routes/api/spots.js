@@ -5,7 +5,7 @@ const { check } = require("express-validator");
 const { handleValidationErrors } = require("../../utils/validation");
 const { SpotImage } = require("../../db/models");
 const { setTokenCookie, restoreUser } = require("../../utils/auth");
-const { Spot, User } = require("../../db/models");
+const { Spot, User, Review, ReviewImage } = require("../../db/models");
 const spot = require("../../db/models/spot");
 const { ERROR } = require("sqlite3");
 
@@ -32,6 +32,33 @@ const validateSpot = [
     .withMessage("Name must be less than 50 characters."),
   check("price").isDecimal().withMessage("Price must be a decimal value."),
 ];
+
+router.get("/:spotId/reviews", async (req, res) => {
+  const { spotId } = req.params;
+
+  const spot = await Spot.findByPk(spotId);
+
+  const reviews = await Review.findAll({
+    attributes: ["id", "userId", "spotId", "review", "stars"],
+
+    where: { spotId: spot.id },
+    include: [
+      {
+        model: User,
+
+        attributes: ["id", "firstName", "lastName"],
+      },
+      {
+        model: ReviewImage,
+
+        attributes: ["id", "url"],
+        foreignKey: "reviewId",
+      },
+    ],
+  });
+
+  res.status(200).json({ Reviews: reviews });
+});
 router.put("/:spotId", validateSpot, async (req, res) => {
   const { spotId } = req.params;
   const { address, city, state, country, lat, lng, name, description, price } =

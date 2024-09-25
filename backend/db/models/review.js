@@ -17,7 +17,6 @@ module.exports = (sequelize, DataTypes) => {
       Review.belongsTo(models.User, {
         foreignKey: "userId",
         onDelete: "CASCADE",
-        through: "",
       });
       Review.hasMany(models.ReviewImage, {
         foreignKey: "reviewId",
@@ -32,6 +31,7 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
         primaryKey: true,
         unique: true,
+        autoIncrement: true,
       },
       userId: {
         type: DataTypes.INTEGER,
