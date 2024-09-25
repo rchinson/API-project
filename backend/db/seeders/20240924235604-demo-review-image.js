@@ -54,8 +54,9 @@ module.exports = {
           url: 'https://media.npr.org/assets/img/2022/05/24/gettyimages-1240857647-25c2cc77d125239d3340d14428d9e24dd5c19092.jpg',
           preview: true,
         },
+        { validate: true }
       ],
-      { validate: true }
+     
     );
   },
 

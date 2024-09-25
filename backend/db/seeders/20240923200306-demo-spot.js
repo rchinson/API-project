@@ -94,11 +94,12 @@ module.exports = {
           name: "A Place in Manhattan",
           price: 8000.51,
           ownerId: 6,
-        }
+        },
+        { validate: true }
 
 
       ],
-      { validate: true }
+      
     );
     /**
      * Add seed commands here.
