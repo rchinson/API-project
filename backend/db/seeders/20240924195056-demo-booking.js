@@ -36,6 +36,36 @@ module.exports = {
         startDate: "05-01-2000",
         endDate: "05-14-2000",
       },
+
+      {
+        spotId: 2,
+        userId: 1,
+        startDate: "06-06-2000",
+        endDate: "06-16-2000",
+      },
+      {
+        spotId: 2,
+        userId: 1,
+        startDate: "07-07-2007",
+        endDate: "07-17-2007",
+      },
+      {
+        spotId: 2,
+        userId: 1,
+        startDate: "08-08-2008",
+        endDate: "08-18-2008",
+      }, {
+        spotId: 2,
+        userId: 1,
+        startDate: "09-09-2009",
+        endDate: "09-19-2009",
+      }, {
+        spotId: 2,
+        userId: 1,
+        startDate: "10-10-2010",
+        endDate: "10-10-2010",
+      },
+      {validate: true}
     ]);
 
     /**
