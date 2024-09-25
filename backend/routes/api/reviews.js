@@ -9,6 +9,12 @@ const { Spot, User, Review } = require("../../db/models");
 const review = require("../../db/models/review");
 const router = express.Router();
 
+
+
+
+
+
+
 router.get("/current",async (req, res) => {
     const { user } = req;
 
