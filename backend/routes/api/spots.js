@@ -217,31 +217,146 @@ router.get(
         "updatedAt",
       ],
       where: { ownerId: user.id },
+      include: [
+        {
+          model: Review,
+          attributes: [[Sequelize.fn('AVG', Sequelize.col('stars')), 'avgRating']],
+        },
+        {
+          model: SpotImage,
+          attributes: ['id', 'url']
+        }
+      ],
+      group: ['Spot.id', 'SpotImages.id']
+    });
+
+    let finalSpots = spots.map(spot => {
+
+      let avgRating = null;
+      if (spot.Reviews.length > 0 && spot.Reviews[0].dataValues.avgRating) {
+
+        avgRating = spot.Reviews[0].dataValues.avgRating;
+      }
+
+      let previewImage = null;
+      if (spot.SpotImages.length > 0) {
+
+        previewImage = spot.SpotImages[0].url;
+      }
+
+      let finalAvgRating = null;
+      if (avgRating) {
+
+        finalAvgRating = parseFloat(avgRating).toFixed(1);
+      }
+
+
+      return {
+        id: spot.id,
+        ownerId: spot.ownerId,
+        address: spot.address,
+        city: spot.city,
+        state: spot.state,
+        country: spot.country,
+        lat: spot.lat,
+        lng: spot.lng,
+        name: spot.name,
+        description: spot.description,
+        price: spot.price,
+        createdAt: spot.createdAt,
+        updatedAt: spot.updatedAt,
+        avgRating: finalAvgRating,
+        previewImage
+      };
     });
 
     res.status(200);
-    res.json({ spots });
+    res.json({ Spots: finalSpots });
   }
 );
 
-router.get(
-  "/:spotId",
 
-  async (req, res) => {
-    let spot;
+router.get("/:spotId", async (req, res) => {
 
-    spot = await Spot.findByPk(req.params.spotId);
-    if (!spot) {
-      return res.status(404).json({
-        message: "Spot couldn't be found",
-        statusCode: 404,
-        error: ERROR.message,
-      });
+  const { spotId } = req.params
+
+
+  const spot = await Spot.findByPk(spotId, {
+    include: [
+      {
+        model: Review,
+        attributes: [
+          [Sequelize.fn('AVG', Sequelize.col('stars')), 'avgRating'],    // averages star rating
+          [Sequelize.fn('COUNT', Sequelize.col('Reviews.id')), 'numReviews']
+        ],
+
+      },
+      {
+        model: SpotImage,
+        attributes: ['id', 'url', 'preview']
+      },
+      {
+        model: User,
+        attributes: ['id', 'firstName', 'lastName']
+      }
+    ]
+  });
+
+
+  let avgRating = null;
+  if (spot.Reviews.length > 0 && spot.Reviews[0].dataValues.avgRating) {
+
+    avgRating = spot.Reviews[0].dataValues.avgRating;
+  }
+
+  let numReviews = null;
+  if (spot.Reviews.length > 0 && spot.Reviews[0].dataValues.numReviews) {
+
+    numReviews = spot.Reviews[0].dataValues.numReviews;
+  }
+
+
+
+  let finalSpot = {
+    id: spot.id,
+    ownerId: spot.ownerId,
+    address: spot.address,
+    city: spot.city,
+    state: spot.state,
+    country: spot.country,
+    lat: spot.lat,
+    lng: spot.lng,
+    name: spot.name,
+    description: spot.description,
+    price: spot.price,
+    createdAt: spot.createdAt,
+    updatedAt: spot.updatedAt,
+    numReviews: numReviews,
+    avgRating: avgRating,
+    SpotImages: spot.SpotImages,
+    Owner: {
+      id: spot.User.id,
+      firstName: spot.User.firstName,
+      lastName: spot.User.lastName
     }
-    res.status(200);
-    res.json({ spot });
   }
-);
+
+  res.status(200).json(finalSpot);
+
+
+
+  if (!spot) {
+    return res.status(400).json({
+      message: "Spot couldn't be found",
+      statusCode: 400,
+      error: error.message,
+    });
+  }
+});
+
+
+
+
 
 // Working on adding query filter to get all spots
 // router.get("/", async (req, res) => {
@@ -294,23 +409,37 @@ router.get("/", async (req, res) => {
     include: [
       {
         model: Review,
-        attributes: [
-          [Sequelize.fn("AVG", Sequelize.col("stars")), "avgRating"],
-        ],
+        attributes: [[Sequelize.fn('AVG', Sequelize.col('stars')), 'avgRating']],
       },
       {
         model: SpotImage,
-        attributes: ["id", "url"],
-      },
+        attributes: ['id', 'url']
+      }
     ],
-    group: ["Spot.id", "SpotImages.id"],
+    group: ['Spot.id', 'SpotImages.id']
   });
 
-  let formattedSpots = spots.map((spot) => {
-    const avgRating = spot.Reviews[0]?.dataValues.avgRating || null;
 
-    const previewImage =
-      spot.SpotImages.length > 0 ? spot.SpotImages[0].url : null;
+  let finalSpots = spots.map(spot => {
+
+    let avgRating = null;
+    if (spot.Reviews.length > 0 && spot.Reviews[0].dataValues.avgRating) {
+
+      avgRating = spot.Reviews[0].dataValues.avgRating;
+    }
+
+    let previewImage = null;
+    if (spot.SpotImages.length > 0) {
+
+      previewImage = spot.SpotImages[0].url;
+    }
+
+    // let finalAvgRating = null;
+    // if (avgRating) {
+
+    //   finalAvgRating = parseFloat(avgRating).toFixed(1);
+    // }
+
 
     return {
       id: spot.id,
@@ -326,13 +455,14 @@ router.get("/", async (req, res) => {
       price: spot.price,
       createdAt: spot.createdAt,
       updatedAt: spot.updatedAt,
-      avgRating: avgRating ? parseFloat(avgRating).toFixed(1) : null,
-      previewImage,
+      avgRating: avgRating,
+      previewImage
     };
   });
 
-  res.status(200).json({ Spots: formattedSpots });
+  res.status(200).json({ Spots: finalSpots });
 });
+
 
 router.delete("/:spotId", requireAuth, async (req, res) => {
   const { spotId } = req.params;
