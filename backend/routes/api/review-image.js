@@ -3,13 +3,13 @@ const { Op } = require("sequelize");
 const bcrypt = require("bcryptjs");
 const { SpotImage } = require("../../db/models");
 const { Spot, User, Review, ReviewImage } = require("../../db/models");
-const { setTokenCookie, restoreUser } = require("../../utils/auth");
+const { setTokenCookie, restoreUser, requireAuth } = require("../../utils/auth");
 const { check } = require("express-validator");
 const { ERROR } = require("sqlite3");
 
 const router = express.Router();
 
-router.delete("/:imageId", async (req, res) => {
+router.delete("/:imageId", requireAuth, async (req, res) => {
   const { imageId } = req.params;
 
   const deletedreview = await ReviewImage.destroy({ where: { id: imageId } });

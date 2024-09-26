@@ -4,11 +4,15 @@ const bcrypt = require("bcryptjs");
 const { check } = require("express-validator");
 const { handleValidationErrors } = require("../../utils/validation");
 const { SpotImage } = require("../../db/models");
-const { setTokenCookie, restoreUser } = require("../../utils/auth");
+const {
+  setTokenCookie,
+  restoreUser,
+  requireAuth,
+} = require("../../utils/auth");
 const { Spot, User, Review, ReviewImage } = require("../../db/models");
 const spot = require("../../db/models/spot");
 const { ERROR } = require("sqlite3");
-const { Sequelize } = require('sequelize');
+const { Sequelize } = require("sequelize");
 
 const router = express.Router();
 
@@ -34,8 +38,8 @@ const validateSpot = [
   check("price").isDecimal().withMessage("Price must be a decimal value."),
 ];
 
-router.post("/:spotId/reviews", async (req, res) => {
-  const { userId,review,stars } = req.body;
+router.post("/:spotId/reviews", requireAuth, async (req, res) => {
+  const { userId, review, stars } = req.body;
   const { spotId } = req.params;
 
   const spot = await Spot.findByPk(spotId);
@@ -75,12 +79,44 @@ router.get("/:spotId/reviews", async (req, res) => {
   res.status(200).json({ Reviews: reviews });
 });
 
-router.put("/:spotId", validateSpot, async (req, res) => {
+router.put("/:spotId", validateSpot, requireAuth, async (req, res) => {
   const { spotId } = req.params;
   const { address, city, state, country, lat, lng, name, description, price } =
     req.body;
 
+  if (!spotId) {
+    return res.status(404).json({
+      message: "Spot couldn't be found",
+      errors,
+    });
+  }
+
+  const errors = {};
+  if (!address) errors.address = "Street address is required";
+  if (!city) errors.city = "City is required";
+  if (!state) errors.state = "State is required";
+  if (!country) errors.country = "Country is required";
+  if (!lat || isNaN(lat)) errors.lat = "Latitude is not valid";
+  if (!lng || isNaN(lng)) errors.lng = "Longitude is not valid";
+  if (!name || name.length > 50)
+    errors.name = "Name must be less than 50 characters";
+  if (!description) errors.description = "Description is required";
+  if (!price || isNaN(price)) errors.price = "Price per day is required";
+
+  if (Object.keys(errors).length > 0) {
+    return res.status(400).json({
+      message: "Bad Request",
+      errors,
+    });
+  }
+
   const spot = await Spot.findByPk(spotId);
+
+  if (!spot) {
+    return res.status(404).json({
+      message: "Spot couldn't be found",
+    });
+  }
 
   spot.address = address || spot.address;
   spot.city = city || spot.city;
@@ -195,19 +231,17 @@ router.get(
     let spot;
 
     spot = await Spot.findByPk(req.params.spotId);
-
-    res.status(200);
-    res.json({ spot });
     if (!spot) {
-      return res.status(400).json({
+      return res.status(404).json({
         message: "Spot couldn't be found",
-        statusCode: 400,
-        error: error.message,
+        statusCode: 404,
+        error: ERROR.message,
       });
     }
+    res.status(200);
+    res.json({ spot });
   }
 );
-
 
 // Working on adding query filter to get all spots
 // router.get("/", async (req, res) => {
@@ -237,8 +271,6 @@ router.get(
 //   res.json({ spots });
 // });
 
-
-
 // GET ALL SPOTS WORKING
 router.get("/", async (req, res) => {
   // let spots = [];
@@ -262,23 +294,23 @@ router.get("/", async (req, res) => {
     include: [
       {
         model: Review,
-        attributes: [[Sequelize.fn('AVG', Sequelize.col('stars')), 'avgRating']],
+        attributes: [
+          [Sequelize.fn("AVG", Sequelize.col("stars")), "avgRating"],
+        ],
       },
       {
         model: SpotImage,
-        attributes: ['id', 'url']
-      }
+        attributes: ["id", "url"],
+      },
     ],
-    group: ['Spot.id', 'SpotImages.id']
+    group: ["Spot.id", "SpotImages.id"],
   });
 
-
-  let formattedSpots = spots.map(spot => {
-
+  let formattedSpots = spots.map((spot) => {
     const avgRating = spot.Reviews[0]?.dataValues.avgRating || null;
 
-
-    const previewImage = spot.SpotImages.length > 0 ? spot.SpotImages[0].url : null;
+    const previewImage =
+      spot.SpotImages.length > 0 ? spot.SpotImages[0].url : null;
 
     return {
       id: spot.id,
@@ -294,17 +326,15 @@ router.get("/", async (req, res) => {
       price: spot.price,
       createdAt: spot.createdAt,
       updatedAt: spot.updatedAt,
-      avgRating: avgRating ? parseFloat(avgRating).toFixed(1) : null, 
-      previewImage
+      avgRating: avgRating ? parseFloat(avgRating).toFixed(1) : null,
+      previewImage,
     };
   });
 
   res.status(200).json({ Spots: formattedSpots });
 });
 
-
-
-router.delete("/:spotId", async (req, res) => {
+router.delete("/:spotId", requireAuth, async (req, res) => {
   const { spotId } = req.params;
 
   await SpotImage.destroy({ where: { spotId } });

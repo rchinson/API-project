@@ -4,12 +4,16 @@ const bcrypt = require("bcryptjs");
 const { check } = require("express-validator");
 const { handleValidationErrors } = require("../../utils/validation");
 
-const { setTokenCookie, restoreUser } = require("../../utils/auth");
+const {
+  setTokenCookie,
+  restoreUser,
+  requireAuth,
+} = require("../../utils/auth");
 const { Spot, User, Review, ReviewImage } = require("../../db/models");
 const review = require("../../db/models/review");
 const router = express.Router();
 
-router.put("/:reviewId", async (req, res) => {
+router.put("/:reviewId", requireAuth, async (req, res) => {
   const { reviewId } = req.params;
   const { userId, spotId, review: newReview, stars } = req.body;
 
@@ -36,7 +40,7 @@ router.put("/:reviewId", async (req, res) => {
   });
 });
 
-router.post("/:reviewId/images", async (req, res) => {
+router.post("/:reviewId/images", requireAuth, async (req, res) => {
   const { reviewId } = req.params;
   const { url } = req.body;
 
@@ -97,7 +101,7 @@ router.get("/current", async (req, res) => {
   res.status(200).json(reviews);
 });
 
-router.delete("/:reviewId", async (req, res) => {
+router.delete("/:reviewId", requireAuth, async (req, res) => {
   const { reviewId } = req.params;
 
   await ReviewImage.destroy({ where: { reviewId } });
