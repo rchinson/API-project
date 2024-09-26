@@ -185,6 +185,7 @@ router.get(
     res.json({ spots });
   }
 );
+
 router.get(
   "/:spotId",
 
@@ -205,6 +206,38 @@ router.get(
   }
 );
 
+
+// Working on adding query filter to get all spots
+// router.get("/", async (req, res) => {
+//   let spots = [];
+
+//   spots = await Spot.findAll({
+//     attributes: [
+//       "id",
+//       "ownerId",
+//       "address",
+//       "city",
+//       "state",
+//       "country",
+//       "lat",
+//       "lng",
+//       "name",
+//       "description",
+//       "price",
+//       "createdAt",
+//       "updatedAt",
+//     ],
+//     include: [
+//       {}
+//     ]
+//   });
+//   res.status(200);
+//   res.json({ spots });
+// });
+
+
+
+// GET ALL SPOTS WORKING
 router.get("/", async (req, res) => {
   let spots = [];
 
@@ -229,6 +262,8 @@ router.get("/", async (req, res) => {
   res.json({ spots });
 });
 
+
+
 router.delete("/:spotId", async (req, res) => {
   const { spotId } = req.params;
 
@@ -242,4 +277,5 @@ router.delete("/:spotId", async (req, res) => {
     return res.status(404).json({ message: "Spot not found" });
   }
 });
+
 module.exports = router;

@@ -11,13 +11,17 @@ const router = express.Router();
 
 router.put("/:reviewId", async (req, res) => {
   const { reviewId } = req.params;
-  const { userId, spotId, review, stars } = req.body;
+  const { userId, spotId, review: newReview, stars } = req.body;
 
-  review = await Review.findByPk(reviewId);
+  let review = await Review.findByPk(reviewId);
+
+  if (!review) {
+    return res.status(404).json({ error: "Review not found" });
+  }
 
   review.userId = userId || review.userId;
   review.spotId = spotId || review.spotId;
-  review.review = review || review.review;
+  review.review = newReview || review.review; 
   review.stars = stars || review.stars;
   await review.save();
 
