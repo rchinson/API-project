@@ -8,6 +8,7 @@ const { setTokenCookie, restoreUser } = require("../../utils/auth");
 const { Spot, User, Review, ReviewImage } = require("../../db/models");
 const spot = require("../../db/models/spot");
 const { ERROR } = require("sqlite3");
+const { Sequelize } = require('sequelize');
 
 const router = express.Router();
 
@@ -73,6 +74,7 @@ router.get("/:spotId/reviews", async (req, res) => {
 
   res.status(200).json({ Reviews: reviews });
 });
+
 router.put("/:spotId", validateSpot, async (req, res) => {
   const { spotId } = req.params;
   const { address, city, state, country, lat, lng, name, description, price } =
@@ -239,9 +241,9 @@ router.get(
 
 // GET ALL SPOTS WORKING
 router.get("/", async (req, res) => {
-  let spots = [];
+  // let spots = [];
 
-  spots = await Spot.findAll({
+  let spots = await Spot.findAll({
     attributes: [
       "id",
       "ownerId",
@@ -257,9 +259,47 @@ router.get("/", async (req, res) => {
       "createdAt",
       "updatedAt",
     ],
+    include: [
+      {
+        model: Review,
+        attributes: [[Sequelize.fn('AVG', Sequelize.col('stars')), 'avgRating']],
+      },
+      {
+        model: SpotImage,
+        attributes: ['id', 'url']
+      }
+    ],
+    group: ['Spot.id', 'SpotImages.id']
   });
-  res.status(200);
-  res.json({ spots });
+
+
+  let formattedSpots = spots.map(spot => {
+
+    const avgRating = spot.Reviews[0]?.dataValues.avgRating || null;
+
+
+    const previewImage = spot.SpotImages.length > 0 ? spot.SpotImages[0].url : null;
+
+    return {
+      id: spot.id,
+      ownerId: spot.ownerId,
+      address: spot.address,
+      city: spot.city,
+      state: spot.state,
+      country: spot.country,
+      lat: spot.lat,
+      lng: spot.lng,
+      name: spot.name,
+      description: spot.description,
+      price: spot.price,
+      createdAt: spot.createdAt,
+      updatedAt: spot.updatedAt,
+      avgRating: avgRating ? parseFloat(avgRating).toFixed(1) : null, 
+      previewImage
+    };
+  });
+
+  res.status(200).json({ Spots: formattedSpots });
 });
 
 
