@@ -44,14 +44,35 @@ router.post("/:reviewId/images", requireAuth, async (req, res) => {
   const { reviewId } = req.params;
   const { url } = req.body;
 
-  const review = await Spot.findByPk(reviewId);
+  const review = await Review.findByPk(reviewId);
+
+  if (!review) {
+    return res.status(404).json({
+      message: "Review couldn't be found",
+    });
+  }
+
+  const existingImagesCount = await ReviewImage.count({
+    where: { reviewId: review.id },
+  });
+
+
+  if (existingImagesCount >= 10) {
+    return res.status(403).json({
+      message: "Maximum number of images for this resource was reached",
+    });
+  }
 
   const newImage = await ReviewImage.create({
     reviewId: review.id,
     url,
   });
 
-  return res.json(newImage);
+  return res.status(201).json({
+    id: newImage.id,
+    reviewId: newImage.reviewId,
+    url: newImage.url,
+  });
 });
 
 router.get("/current", async (req, res) => {
