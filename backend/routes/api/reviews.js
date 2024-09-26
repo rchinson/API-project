@@ -21,7 +21,7 @@ router.put("/:reviewId", async (req, res) => {
 
   review.userId = userId || review.userId;
   review.spotId = spotId || review.spotId;
-  review.review = newReview || review.review; 
+  review.review = newReview || review.review;
   review.stars = stars || review.stars;
   await review.save();
 
@@ -96,6 +96,25 @@ router.get("/current", async (req, res) => {
 
   res.status(200).json(reviews);
 });
+
+router.delete("/:reviewId", async (req, res) => {
+  const { reviewId } = req.params;
+
+  await ReviewImage.destroy({ where: { reviewId } });
+
+  const deletedreview = await Review.destroy({ where: { id: reviewId } });
+
+  if (deletedreview) {
+    return res.json({
+      message: "Successfully deleted",
+    });
+  } else {
+    return res.status(404).json({
+      message: "Review couldn't be found",
+    });
+  }
+});
+
 router.get("/:spotId", async (req, res) => {});
 
 router.get("/", async (req, res) => {});
