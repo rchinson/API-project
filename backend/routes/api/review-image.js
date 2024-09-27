@@ -3,7 +3,11 @@ const { Op } = require("sequelize");
 const bcrypt = require("bcryptjs");
 const { SpotImage } = require("../../db/models");
 const { Spot, User, Review, ReviewImage } = require("../../db/models");
-const { setTokenCookie, restoreUser, requireAuth } = require("../../utils/auth");
+const {
+  setTokenCookie,
+  restoreUser,
+  requireAuth,
+} = require("../../utils/auth");
 const { check } = require("express-validator");
 const { ERROR } = require("sqlite3");
 
@@ -22,7 +26,7 @@ router.delete("/:imageId", requireAuth, async (req, res) => {
     });
   } else {
     return res.status(404).json({
-      message: "Spot Image couldn't be found",
+      message: "Review Image couldn't be found",
     });
   }
 });

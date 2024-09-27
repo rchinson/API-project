@@ -87,8 +87,6 @@ router.post(
       });
     }
 
-
-
     const newReview = await Review.create({
       userId: req.user.id,
       spotId,
@@ -113,21 +111,23 @@ router.get("/:spotId/reviews", async (req, res) => {
 
   const spot = await Spot.findByPk(spotId);
 
+  if (!spot) {
+    return res.status(404).json({
+      message: "Spot couldn't be found",
+    });
+  }
+
   const reviews = await Review.findAll({
     attributes: ["id", "userId", "spotId", "review", "stars"],
-
     where: { spotId: spot.id },
     include: [
       {
         model: User,
-
         attributes: ["id", "firstName", "lastName"],
       },
       {
         model: ReviewImage,
-
         attributes: ["id", "url"],
-        foreignKey: "reviewId",
       },
     ],
   });
@@ -331,6 +331,13 @@ router.get(
 router.get("/:spotId", async (req, res) => {
   const { spotId } = req.params;
 
+  if (!spotId) {
+    return res.status(400).json({
+      message: "Spot couldn't be found",
+      statusCode: 404,
+    });
+  }
+
   const spot = await Spot.findByPk(spotId, {
     include: [
       {
@@ -378,22 +385,17 @@ router.get("/:spotId", async (req, res) => {
     numReviews: numReviews,
     avgRating: avgRating,
     SpotImages: spot.SpotImages,
-    Owner: {
-      id: spot.User.id,
-      firstName: spot.User.firstName,
-      lastName: spot.User.lastName,
-    },
+    Owner: spot.User
+      ? {
+          id: spot.User.id,
+          firstName: spot.User.firstName,
+          lastName: spot.User.lastName,
+        }
+      : res.status(404).json({
+          message: "Spot couldn't be found",
+        }),
   };
-
   res.status(200).json(finalSpot);
-
-  if (!spot) {
-    return res.status(400).json({
-      message: "Spot couldn't be found",
-      statusCode: 400,
-      error: error.message,
-    });
-  }
 });
 
 // Working on adding query filter to get all spots
@@ -426,9 +428,38 @@ router.get("/:spotId", async (req, res) => {
 
 // GET ALL SPOTS WORKING
 router.get("/", async (req, res) => {
-  // let spots = [];
+  let {
+    page = 1,
+    size = 20,
+    minPrice,
+    maxPrice,
+    city,
+    state,
+    country,
+  } = req.query;
 
+  // Ensure page and size are integers and within acceptable limits
+  page = parseInt(page);
+  size = parseInt(size);
+  if (page < 1) page = 1;
+  if (size < 1) size = 20;
+  if (size > 20) size = 20;
+
+  const where = {};
+
+  // Query filters for city, state, country, and price range
+  if (city) where.city = city;
+  if (state) where.state = state;
+  if (country) where.country = country;
+  if (minPrice) where.price = { [Op.gte]: parseFloat(minPrice) };
+  if (maxPrice)
+    where.price = { ...where.price, [Op.lte]: parseFloat(maxPrice) };
+
+  const totalSpots = await Spot.count({ where });
+
+  // Fetch spots with filters and pagination
   let spots = await Spot.findAll({
+    where,
     attributes: [
       "id",
       "ownerId",
@@ -453,28 +484,25 @@ router.get("/", async (req, res) => {
       },
       {
         model: SpotImage,
-        attributes: ["id", "url"],
+        attributes: ["id", "url", "preview"],
       },
     ],
+    limit: size,
+    offset: (page - 1) * size,
     group: ["Spot.id", "SpotImages.id"],
   });
 
+  // Process spots to include avgRating and previewImage
   let finalSpots = spots.map((spot) => {
     let avgRating = null;
     if (spot.Reviews.length > 0 && spot.Reviews[0].dataValues.avgRating) {
-      avgRating = spot.Reviews[0].dataValues.avgRating;
+      avgRating = parseFloat(spot.Reviews[0].dataValues.avgRating).toFixed(1);
     }
 
     let previewImage = null;
     if (spot.SpotImages.length > 0) {
       previewImage = spot.SpotImages[0].url;
     }
-
-    // let finalAvgRating = null;
-    // if (avgRating) {
-
-    //   finalAvgRating = parseFloat(avgRating).toFixed(1);
-    // }
 
     return {
       id: spot.id,
@@ -495,9 +523,14 @@ router.get("/", async (req, res) => {
     };
   });
 
-  res.status(200).json({ Spots: finalSpots });
+  res.status(200).json({
+    Spots: finalSpots,
+    page,
+    size,
+    totalSpots,
+    totalPages: Math.ceil(totalSpots / size),
+  });
 });
-
 router.delete("/:spotId", requireAuth, async (req, res) => {
   const { spotId } = req.params;
 
