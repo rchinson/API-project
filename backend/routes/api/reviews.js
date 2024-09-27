@@ -9,6 +9,7 @@ const {
   restoreUser,
   requireAuth,
 } = require("../../utils/auth");
+
 const { Spot, User, Review, ReviewImage } = require("../../db/models");
 const review = require("../../db/models/review");
 const router = express.Router();
@@ -140,8 +141,6 @@ router.delete("/:reviewId", requireAuth, async (req, res) => {
   }
 });
 
-router.get("/:spotId", async (req, res) => {});
 
-router.get("/", async (req, res) => {});
 
 module.exports = router;

@@ -209,6 +209,12 @@ router.post("/:spotId/images", async (req, res) => {
 
   const spot = await Spot.findByPk(spotId);
 
+  const userId = req.user?.id
+
+  if (userId !== spot.ownerId) {
+    return res.status(403).json({ message: 'Forbidden'})
+  }
+
   const newImage = await SpotImage.create({
     spotId: spot.id,
     url,
@@ -257,29 +263,34 @@ router.get(
     let spots = [];
 
     spots = await Spot.findAll({
-      attributes: [
-        "id",
-        "ownerId",
-        "address",
-        "city",
-        "state",
-        "country",
-        "lat",
-        "lng",
-        "name",
-        "description",
-        "price",
-        "createdAt",
-        "updatedAt",
-      ],
+      attributes: {
+
+        include: [
+          [Sequelize.literal(`(SELECT AVG(reviews.stars) FROM reviews WHERE reviews.spotId = Spot.id)`), "avgRating"]
+        ]
+
+        // "id",
+        // "ownerId",
+        // "address",
+        // "city",
+        // "state",
+        // "country",
+        // "lat",
+        // "lng",
+        // "name",
+        // "description",
+        // "price",
+        // "createdAt",
+        // "updatedAt",
+    },
       where: { ownerId: user.id },
       include: [
-        {
-          model: Review,
-          attributes: [
-            [Sequelize.fn("AVG", Sequelize.col("stars")), "avgRating"],
-          ],
-        },
+        // {
+        //   model: Review,
+        //   attributes: [
+        //     [Sequelize.fn("AVG", Sequelize.col("stars")), "avgRating"],
+        //   ],
+        // },
         {
           model: SpotImage,
           attributes: ["id", "url"],
@@ -289,20 +300,20 @@ router.get(
     });
 
     let finalSpots = spots.map((spot) => {
-      let avgRating = null;
-      if (spot.Reviews.length > 0 && spot.Reviews[0].dataValues.avgRating) {
-        avgRating = spot.Reviews[0].dataValues.avgRating;
-      }
+      // let avgRating = null;
+      // if (spot.Reviews.length > 0 && spot.Reviews[0].dataValues.avgRating) {
+      //   avgRating = spot.Reviews[0].dataValues.avgRating;
+      // }
 
       let previewImage = null;
       if (spot.SpotImages.length > 0) {
         previewImage = spot.SpotImages[0].url;
       }
 
-      let finalAvgRating = null;
-      if (avgRating) {
-        finalAvgRating = parseFloat(avgRating).toFixed(1);
-      }
+      // let finalAvgRating = null;
+      // if (avgRating) {
+      //   finalAvgRating = parseFloat(avgRating).toFixed(1);
+      // }
 
       return {
         id: spot.id,
@@ -318,7 +329,7 @@ router.get(
         price: spot.price,
         createdAt: spot.createdAt,
         updatedAt: spot.updatedAt,
-        avgRating: finalAvgRating,
+        avgRating: spot.dataValues.avgRating || null,
         previewImage,
       };
     });
@@ -339,14 +350,32 @@ router.get("/:spotId", async (req, res) => {
   }
 
   const spot = await Spot.findByPk(spotId, {
+    attributes: {
+      include: [
+        [Sequelize.literal(`(SELECT AVG(reviews.stars) FROM reviews WHERE reviews.spotId = Spot.id)`), "avgRating"],
+        
+        [Sequelize.literal(`(SELECT COUNT(reviews.stars) FROM reviews WHERE reviews.spotId = Spot.id)`), "numReviews"]
+
+      ]
+    },
+
+
+
+
     include: [
-      {
-        model: Review,
-        attributes: [
-          [Sequelize.fn("AVG", Sequelize.col("stars")), "avgRating"], // averages star rating
-          [Sequelize.fn("COUNT", Sequelize.col("Reviews.id")), "numReviews"],
-        ],
-      },
+      // {
+      //   model: Review,
+      //   attributes: [
+
+      //     [Sequelize.fn("AVG", Sequelize.col("stars")), "avgRating"], 
+          
+        
+
+      //     [Sequelize.fn("COUNT", Sequelize.col("Reviews.id")), "numReviews"],
+
+
+      //   ],
+      // },
       {
         model: SpotImage,
         attributes: ["id", "url", "preview"],
@@ -358,15 +387,15 @@ router.get("/:spotId", async (req, res) => {
     ],
   });
 
-  let avgRating = null;
-  if (spot.Reviews.length > 0 && spot.Reviews[0].dataValues.avgRating) {
-    avgRating = spot.Reviews[0].dataValues.avgRating;
-  }
+  // let avgRating = null;
+  // if (spot.Reviews.length > 0 && spot.Reviews[0].dataValues.avgRating) {
+  //   avgRating = spot.Reviews[0].dataValues.avgRating;
+  // }
 
-  let numReviews = null;
-  if (spot.Reviews.length > 0 && spot.Reviews[0].dataValues.numReviews) {
-    numReviews = spot.Reviews[0].dataValues.numReviews;
-  }
+  // let numReviews = null;
+  // if (spot.Reviews.length > 0 && spot.Reviews[0].dataValues.numReviews) {
+  //   numReviews = spot.Reviews[0].dataValues.numReviews;
+  // }
 
   let finalSpot = {
     id: spot.id,
@@ -382,8 +411,8 @@ router.get("/:spotId", async (req, res) => {
     price: spot.price,
     createdAt: spot.createdAt,
     updatedAt: spot.updatedAt,
-    numReviews: numReviews,
-    avgRating: avgRating,
+    numReviews: spot.dataValues.numReviews || null,
+    avgRating: spot.dataValues.avgRating || null,
     SpotImages: spot.SpotImages,
     Owner: spot.User
       ? {
@@ -398,111 +427,49 @@ router.get("/:spotId", async (req, res) => {
   res.status(200).json(finalSpot);
 });
 
-// Working on adding query filter to get all spots
-// router.get("/", async (req, res) => {
-//   let spots = [];
 
-//   spots = await Spot.findAll({
-//     attributes: [
-//       "id",
-//       "ownerId",
-//       "address",
-//       "city",
-//       "state",
-//       "country",
-//       "lat",
-//       "lng",
-//       "name",
-//       "description",
-//       "price",
-//       "createdAt",
-//       "updatedAt",
-//     ],
-//     include: [
-//       {}
-//     ]
-//   });
-//   res.status(200);
-//   res.json({ spots });
-// });
+
+
 
 // GET ALL SPOTS WORKING
 router.get("/", async (req, res) => {
-  let {
-    page = 1,
-    size = 20,
-    minPrice,
-    maxPrice,
-    city,
-    state,
-    country,
-  } = req.query;
+  let { page, size } = req.query;
 
-  // Ensure page and size are integers and within acceptable limits
+  if (!page) page = 1;
+  if (!size) size = Infinity;
+
   page = parseInt(page);
   size = parseInt(size);
-  if (page < 1) page = 1;
-  if (size < 1) size = 20;
-  if (size > 20) size = 20;
 
-  const where = {};
+  const pagination = {};
 
-  // Query filters for city, state, country, and price range
-  if (city) where.city = city;
-  if (state) where.state = state;
-  if (country) where.country = country;
-  if (minPrice) where.price = { [Op.gte]: parseFloat(minPrice) };
-  if (maxPrice)
-    where.price = { ...where.price, [Op.lte]: parseFloat(maxPrice) };
+  if (page >= 1 && size >= 1) {
+    pagination.limit = size;
+    pagination.offset = size * (page - 1);
+  }
 
-  const totalSpots = await Spot.count({ where });
 
-  // Fetch spots with filters and pagination
   let spots = await Spot.findAll({
-    where,
-    attributes: [
-      "id",
-      "ownerId",
-      "address",
-      "city",
-      "state",
-      "country",
-      "lat",
-      "lng",
-      "name",
-      "description",
-      "price",
-      "createdAt",
-      "updatedAt",
-    ],
+
+    attributes: {
+      include: [
+        [Sequelize.literal(`(SELECT AVG(reviews.stars) FROM reviews WHERE reviews.spotId = Spot.id)`),"avgRating"],
+      ],
+    },
+
     include: [
-      {
-        model: Review,
-        attributes: [
-          [Sequelize.fn("AVG", Sequelize.col("stars")), "avgRating"],
-        ],
-      },
       {
         model: SpotImage,
         attributes: ["id", "url", "preview"],
       },
     ],
-    limit: size,
-    offset: (page - 1) * size,
-    group: ["Spot.id", "SpotImages.id"],
+    // group: ["Spot.id", "SpotImages.id"],
+
+    ...pagination,
   });
 
-  // Process spots to include avgRating and previewImage
-  let finalSpots = spots.map((spot) => {
-    let avgRating = null;
-    if (spot.Reviews.length > 0 && spot.Reviews[0].dataValues.avgRating) {
-      avgRating = parseFloat(spot.Reviews[0].dataValues.avgRating).toFixed(1);
-    }
 
-    let previewImage = null;
-    if (spot.SpotImages.length > 0) {
-      previewImage = spot.SpotImages[0].url;
-    }
+  let finalSpots = spots.map(spot => {
 
     return {
       id: spot.id,
@@ -518,19 +485,23 @@ router.get("/", async (req, res) => {
       price: spot.price,
       createdAt: spot.createdAt,
       updatedAt: spot.updatedAt,
-      avgRating: avgRating,
-      previewImage,
+      avgRating: spot.dataValues.avgRating || null,
+      previewImage: spot.SpotImages.length > 0 ? spot.SpotImages[0].url : null
     };
   });
 
-  res.status(200).json({
-    Spots: finalSpots,
-    page,
-    size,
-    totalSpots,
-    totalPages: Math.ceil(totalSpots / size),
-  });
+
+
+  if (size) {
+    res.status(200).json({ Spots: finalSpots, page, size });
+  } else {
+    res.status(200).json({ Spots: finalSpots });
+  }
+
+  // res.status(200).json( finalResponse );
 });
+
+
 router.delete("/:spotId", requireAuth, async (req, res) => {
   const { spotId } = req.params;
 
