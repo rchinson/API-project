@@ -448,8 +448,17 @@ router.get("/", async (req, res) => {
     pagination.offset = size * (page - 1);
   }
 
+  
+  // check if max and min lat
+
+
 
   let spots = await Spot.findAll({
+
+    // where: {
+      
+
+    // },
 
     attributes: {
       include: [

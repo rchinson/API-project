@@ -71,6 +71,7 @@ router.post("/", validateLogin, async (req, res, next) => {
 
 router.get("/", requireAuth, (req, res) => {
   const { user } = req;
+  
   if (user) {
     const safeUser = {
       id: user.id,
@@ -79,9 +80,7 @@ router.get("/", requireAuth, (req, res) => {
       email: user.email,
       username: user.username,
     };
-    return res.json({
-      user: safeUser,
-    });
+    return res.status(200).json({user: safeUser});
   } else return res.json({ user: null });
 });
 
