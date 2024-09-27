@@ -1,6 +1,5 @@
 "use strict";
-
-let options = { tableName: "Spots" };
+let options = { tableName: "reviewImages" };
 if (process.env.NODE_ENV === "production") {
   options.schema = process.env.SCHEMA; // define your schema in options object
 }
@@ -12,52 +11,20 @@ module.exports = {
       id: {
         allowNull: false,
         autoIncrement: true,
-        primaryKey: true,
+        primaryKey: true, 
         type: Sequelize.INTEGER,
       },
-      ownerId: {
+      reviewId: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: "Users",
+          model: "Reviews",
           key: "id",
         },
         onDelete: "CASCADE",
       },
-      address: {
+      url: {
         type: Sequelize.STRING,
-        allowNull: false,
-      },
-      city: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
-      state: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
-      country: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
-      lat: {
-        type: Sequelize.DECIMAL(9, 6),
-        allowNull: false,
-      },
-      lng: {
-        type: Sequelize.DECIMAL(9, 6),
-        allowNull: false,
-      },
-      name: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
-      description: {
-        type: Sequelize.TEXT,
-        allowNull: true,
-      },
-      price: {
-        type: Sequelize.DECIMAL(10, 2),
         allowNull: false,
       },
       createdAt: {
@@ -73,6 +40,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable("Spots");
+    await queryInterface.dropTable("reviewImages");
   },
 };

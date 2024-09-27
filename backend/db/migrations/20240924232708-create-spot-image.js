@@ -1,6 +1,5 @@
 "use strict";
-
-let options = { tableName: "Spots" };
+let options = { tableName: "SpotImages" };
 if (process.env.NODE_ENV === "production") {
   options.schema = process.env.SCHEMA; // define your schema in options object
 }
@@ -11,54 +10,28 @@ module.exports = {
     await queryInterface.createTable(options, {
       id: {
         allowNull: false,
-        autoIncrement: true,
         primaryKey: true,
+        autoIncrement: true,
         type: Sequelize.INTEGER,
       },
-      ownerId: {
+
+      spotId: {
         type: Sequelize.INTEGER,
-        allowNull: false,
+        allowNull:false,
         references: {
-          model: "Users",
+          model: "Spots",
           key: "id",
         },
         onDelete: "CASCADE",
       },
-      address: {
+      url: {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      city: {
-        type: Sequelize.STRING,
+      preview: {
+        type: Sequelize.BOOLEAN,
         allowNull: false,
-      },
-      state: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
-      country: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
-      lat: {
-        type: Sequelize.DECIMAL(9, 6),
-        allowNull: false,
-      },
-      lng: {
-        type: Sequelize.DECIMAL(9, 6),
-        allowNull: false,
-      },
-      name: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
-      description: {
-        type: Sequelize.TEXT,
-        allowNull: true,
-      },
-      price: {
-        type: Sequelize.DECIMAL(10, 2),
-        allowNull: false,
+        defaultValue: false,
       },
       createdAt: {
         allowNull: false,
@@ -73,6 +46,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable("Spots");
+    await queryInterface.dropTable("SpotImages");
   },
 };

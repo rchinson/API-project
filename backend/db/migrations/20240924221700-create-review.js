@@ -1,6 +1,9 @@
 "use strict";
 
-let options = { tableName: "Spots" };
+const { Review } = require("../models");
+const bcrypt = require("bcryptjs");
+
+let options = { tableName: "Reviews" };
 if (process.env.NODE_ENV === "production") {
   options.schema = process.env.SCHEMA; // define your schema in options object
 }
@@ -15,7 +18,17 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
-      ownerId: {
+
+      spotId: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: "Spots",
+          key: "id",
+        },
+        onDelete: "CASCADE",
+      },
+      userId: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
@@ -24,41 +37,11 @@ module.exports = {
         },
         onDelete: "CASCADE",
       },
-      address: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
-      city: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
-      state: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
-      country: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
-      lat: {
-        type: Sequelize.DECIMAL(9, 6),
-        allowNull: false,
-      },
-      lng: {
-        type: Sequelize.DECIMAL(9, 6),
-        allowNull: false,
-      },
-      name: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
-      description: {
+      review: {
         type: Sequelize.TEXT,
-        allowNull: true,
       },
-      price: {
-        type: Sequelize.DECIMAL(10, 2),
-        allowNull: false,
+      stars: {
+        type: Sequelize.INTEGER,
       },
       createdAt: {
         allowNull: false,
@@ -73,6 +56,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable("Spots");
+    await queryInterface.dropTable("Reviews");
   },
 };
