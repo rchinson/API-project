@@ -69,7 +69,7 @@ router.post("/", validateLogin, async (req, res, next) => {
   }
 });
 
-router.get("/", requireAuth, (req, res) => {
+router.get("/", (req, res) => {
   const { user } = req;
   if (user) {
     const safeUser = {
@@ -79,8 +79,8 @@ router.get("/", requireAuth, (req, res) => {
       email: user.email,
       username: user.username,
     };
-    return res.json( { user: safeUser} );
-  } else return res.json( { user: null } );
+    return res.json({ user: safeUser });
+  } else return res.json({ user: null });
 });
 
 // Log out
