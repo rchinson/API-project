@@ -119,8 +119,15 @@ router.get("/:spotId/reviews", async (req, res) => {
   }
 
   const reviews = await Review.findAll({
-    attributes: ["id", "userId", "spotId", "review", "stars"],
-    where: { spotId: spot.id },
+    attributes: [
+      "id",
+      "userId",
+      "spotId",
+      "review",
+      "stars",
+      "createdAt",
+      "updatedAt",
+    ],
     include: [
       {
         model: User,
@@ -129,6 +136,17 @@ router.get("/:spotId/reviews", async (req, res) => {
       {
         model: ReviewImage,
         attributes: ["id", "url"],
+      },
+      {
+        model: Spot,
+        include: [
+          {
+            model: SpotImage,
+            attributes: ["id", "url"],
+            where: { preview: true },
+            required: false,
+          },
+        ],
       },
     ],
   });
