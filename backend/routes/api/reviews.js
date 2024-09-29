@@ -10,7 +10,7 @@ const {
   requireAuth,
 } = require("../../utils/auth");
 
-const { Spot, User, Review, ReviewImage } = require("../../db/models");
+const { Spot, User, Review, ReviewImage ,SpotImage} = require("../../db/models");
 const review = require("../../db/models/review");
 const router = express.Router();
 
@@ -163,10 +163,15 @@ router.get("/current", requireAuth, async (req, res) => {
     return res.status(200).json({ Reviews: formattedReviews });
   } catch (error) {
     console.error("Error fetching current user reviews:", error);
-    return res.status(500).json({
-      message: "Internal Server Error",
-      error: error.message,
-    });
+
+    // If the error is an authentication error, respond with 401 (Unauthorized)
+    if (error.name === "AuthenticationError") {
+      // Assuming you have an AuthenticationError class defined
+      return res.status(401).json({ message: "Authentication required" });
+    } else {
+      // For other errors, respond with 500 (Internal Server Error)
+      return res.status(500).json({ message: "Internal Server Error" });
+    }
   }
 });
 
