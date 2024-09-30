@@ -4,7 +4,10 @@
 const { Spot } = require("../models");
 
 const { Op } = require('sequelize');
-
+let options = {};
+if (process.env.NODE_ENV === "production") {
+  options.schema = process.env.SCHEMA; // define your schema in options object
+}
 
 const demoSpots = [
   {
@@ -116,7 +119,9 @@ module.exports = {
   },
 
   async down(queryInterface, Sequelize) {
-    await queryInterface.bulkDelete("Spots",
+    options.tableName = 'Spots';
+    const Op = Sequelize.Op;
+    await queryInterface.bulkDelete(options,
       {
         ownerId: { [Op.in]: spotsDelete }
       }
