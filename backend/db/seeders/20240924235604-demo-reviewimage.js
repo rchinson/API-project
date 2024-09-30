@@ -1,6 +1,6 @@
 "use strict";
 const { ReviewImage } = require("../models");
-const { Op } = require('sequelize');
+const { Op } = Sequelize.Op;
 
 const demoReviewImages=[ 
   {
@@ -46,22 +46,37 @@ const demoReviewImages=[
 
 const reviewImagesDelete = demoReviewImages.map( (reviewImage) => {
   return reviewImage.reviewId;
-});
+})
 
 module.exports = {
   async up(queryInterface, Sequelize) {
+    /**
+     * Add seed commands here.
+     *
+     * Example:
+     * await queryInterface.bulkInsert('People', [{
+     *   name: 'John Doe',
+     *   isBetaMember: false
+     * }], {});
+     */
 
 
     await ReviewImage.bulkCreate(demoReviewImages);
   },
 
   async down(queryInterface, Sequelize) {
-  
-    await queryInterface.bulkDelete("ReviewImages", 
-       { 
+    
+    await queryInterface.bulkDelete("ReviewImage", 
+      { where: { 
+
       reviewId: { [Op.in]: reviewImagesDelete }
     } 
-  );
-
+  });
+    /**
+     * Add commands to revert seed here.
+     *
+     * Example:
+     * await queryInterface.bulkDelete('People', null, {});
+     */
   },
 };

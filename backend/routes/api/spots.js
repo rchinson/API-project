@@ -11,7 +11,7 @@ const {
 } = require("../../utils/auth");
 const { Spot, User, Review, ReviewImage } = require("../../db/models");
 const spot = require("../../db/models/spot");
-const { ERROR } = require("sqlite3");
+// const { ERROR } = require("sqlite3");
 const { Sequelize } = require("sequelize");
 const user = require("../../db/models/user");
 

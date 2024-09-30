@@ -9,7 +9,7 @@ const {
   requireAuth,
 } = require("../../utils/auth");
 const { check } = require("express-validator");
-const { ERROR } = require("sqlite3");
+// const { ERROR } = require("sqlite3");
 
 const router = express.Router();
 
