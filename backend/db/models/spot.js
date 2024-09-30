@@ -1,4 +1,5 @@
 "use strict";
+let options = { };
 const { Model, Validator } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class Spot extends Model {
@@ -82,6 +83,7 @@ module.exports = (sequelize, DataTypes) => {
     {
       sequelize,
       modelName: "Spot",
+      ...options
     }
   );
   return Spot;

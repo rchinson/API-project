@@ -1,7 +1,7 @@
 "use strict";
 const { User } = require("../models");
 const bcrypt = require("bcryptjs");
-let options = { tableName: "Users" };
+let options = { };
 if (process.env.NODE_ENV === "production") {
   options.schema = process.env.SCHEMA; // define your schema in options object
 }
@@ -9,7 +9,7 @@ if (process.env.NODE_ENV === "production") {
 module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.createTable(
-      options,
+      "Users",
       {
         id: {
           allowNull: false,
@@ -58,7 +58,7 @@ module.exports = {
   },
 
   async down(queryInterface, Sequelize) {
-    // options.tableName = "Users";
+    options.tableName = "Users";
     return queryInterface.dropTable(options);
   },
 };

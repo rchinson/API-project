@@ -1,4 +1,5 @@
 "use strict";
+let options = { };
 
 const { Model, Validator } = require("sequelize");
 
@@ -67,6 +68,7 @@ module.exports = (sequelize, DataTypes) => {
     {
       sequelize,
       modelName: "User",
+      ...options,
 
       defaultScope: {
         attributes: {

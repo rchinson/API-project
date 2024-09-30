@@ -1,4 +1,5 @@
 "use strict";
+let options = { };
 const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class ReviewImage extends Model {
@@ -50,6 +51,7 @@ module.exports = (sequelize, DataTypes) => {
     {
       sequelize,
       modelName: "ReviewImage",
+      ...options
     }
   );
   return ReviewImage;
