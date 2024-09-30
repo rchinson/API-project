@@ -1,7 +1,7 @@
 "use strict";
 const { User } = require("../models");
 const bcrypt = require("bcryptjs");
-let options = { };
+let options = {  };
 if (process.env.NODE_ENV === "production") {
   options.schema = process.env.SCHEMA; // define your schema in options object
 }
@@ -9,57 +9,31 @@ if (process.env.NODE_ENV === "production") {
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable("Spots", {
+    await queryInterface.createTable("SpotImages", {
       id: {
         allowNull: false,
-        autoIncrement: true,
         primaryKey: true,
+        autoIncrement: true,
         type: Sequelize.INTEGER,
       },
-      ownerId: {
+
+      spotId: {
         type: Sequelize.INTEGER,
-        allowNull: false,
+        allowNull:false,
         references: {
-          model: "Users",
+          model: "Spots",
           key: "id",
         },
         onDelete: "CASCADE",
       },
-      address: {
+      url: {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      city: {
-        type: Sequelize.STRING,
+      preview: {
+        type: Sequelize.BOOLEAN,
         allowNull: false,
-      },
-      state: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
-      country: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
-      lat: {
-        type: Sequelize.DECIMAL(9, 6),
-        allowNull: false,
-      },
-      lng: {
-        type: Sequelize.DECIMAL(9, 6),
-        allowNull: false,
-      },
-      name: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
-      description: {
-        type: Sequelize.TEXT,
-        allowNull: false,
-      },
-      price: {
-        type: Sequelize.DECIMAL(10, 2),
-        allowNull: false,
+        defaultValue: false,
       },
       createdAt: {
         allowNull: false,
@@ -76,7 +50,7 @@ module.exports = {
   );
   },
   async down(queryInterface, Sequelize) {
-    options.tableName = "Spots";
-    await queryInterface.dropTable("Spots");
+    options.tableName = "SpotImages";
+    await queryInterface.dropTable("SpotImages");
   },
 };

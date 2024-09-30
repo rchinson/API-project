@@ -1,4 +1,5 @@
 "use strict";
+let options = { };
 
 const { Model, Validator } = require("sequelize");
 
@@ -7,10 +8,18 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       // define association here
       //StudentClassroom.belongsTo(models.Classroom);
-      User.hasMany(models.Spot,{
-        foreignKey:"ownerId",
-        onDelete: 'CASCADE'
-      })
+      User.hasMany(models.Spot, {
+        foreignKey: "ownerId",
+        onDelete: "CASCADE",
+      });
+      User.hasMany(models.Booking, {
+        foreignKey: "userId",
+        onDelete: "CASCADE",
+      });
+      User.hasMany(models.Review, {
+        foreignKey: "userId",
+        onDelete: "CASCADE",
+      });
     }
   }
 
@@ -59,6 +68,7 @@ module.exports = (sequelize, DataTypes) => {
     {
       sequelize,
       modelName: "User",
+      ...options,
 
       defaultScope: {
         attributes: {

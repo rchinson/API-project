@@ -1,4 +1,5 @@
 "use strict";
+let options = { };
 const { Model, Validator } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class Spot extends Model {
@@ -15,6 +16,20 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "ownerId",
         onDelete: "CASCADE",
         through: "",
+      });
+      Spot.hasMany(models.Booking, {
+        foreignKey: "spotId",
+        onDelete: "CASCADE",
+      });
+
+      Spot.hasMany(models.Review, {
+        foreignKey: "spotId",
+        onDelete: "CASCADE",
+      });
+
+      Spot.hasMany(models.SpotImage, {
+        foreignKey: "spotId",
+        onDelete: "CASCADE",
       });
     }
   }
@@ -48,7 +63,10 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
-      description: DataTypes.TEXT,
+      description: {
+        type: DataTypes.TEXT,
+        allowNull: false,
+      },
       price: {
         type: DataTypes.DECIMAL(10, 2),
         allowNull: false,
@@ -65,6 +83,7 @@ module.exports = (sequelize, DataTypes) => {
     {
       sequelize,
       modelName: "Spot",
+      ...options
     }
   );
   return Spot;
