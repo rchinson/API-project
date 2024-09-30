@@ -1,5 +1,5 @@
 "use strict";
-const { Statement } = require("sqlite3");
+
 const { Booking } = require("../models");
 
 /** @type {import('sequelize-cli').Migration} */

@@ -1,5 +1,5 @@
 "use strict";
-const { Statement } = require("sqlite3");
+
 const { SpotImage } = require("../models");
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
