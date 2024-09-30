@@ -1,6 +1,6 @@
 "use strict";
 const { ReviewImage } = require("../models");
-const { Op } = Sequelize.Op;
+const { Op } = require('sequelize');
 
 const demoReviewImages=[ 
   {
