@@ -20,6 +20,7 @@ module.exports = (sequelize, DataTypes) => {
   }
   Spot.init(
     {
+
       address: {
         type: DataTypes.STRING,
         allowNull: false,

@@ -5,6 +5,9 @@ const router = require("express").Router();
 // ...
 const sessionRouter = require("./session.js");
 const usersRouter = require("./users.js");
+const spotsRouter = require('./spots.js');
+
+
 const { setTokenCookie } = require("../../utils/auth.js");
 const { User } = require("../../db/models");
 
@@ -12,12 +15,14 @@ const { restoreUser } = require("../../utils/auth.js");
 
 const { requireAuth } = require("../../utils/auth.js");
 
-const spotsRouter = require('./routes/api/spots');
 
-app.use('/api/spots', spotsRouter);
+
 
 
 router.use(restoreUser);
+
+
+router.use('/spots', spotsRouter);
 
 router.use("/session", sessionRouter);
 

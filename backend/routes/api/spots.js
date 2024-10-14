@@ -10,30 +10,30 @@ const spot = require("../../db/models/spot");
 
 const router = express.Router();
 
-router.get("/", async (req, res) => {
-  const spots = await Spot.findAll({
-    attributes: [
-      "id",
-      "ownerId",
-      "address",
-      "city",
-      "state",
-      "country",
-      "lat",
-      "lng",
-      "name",
-      "description",
-      "price",
-      "createdAt",
-      "updatedAt",
-      "avgRating",
-      "previewImage",
-    ],
-  });
+router.get("../api/spots", async (req, res) => {
+  // const spots = await Spot.findAll({
+  //   attributes: [
+  //     "id",
+  //     "ownerId",
+  //     "address",
+  //     "city",
+  //     "state",
+  //     "country",
+  //     "lat",
+  //     "lng",
+  //     "name",
+  //     "description",
+  //     "price",
+  //     "createdAt",
+  //     "updatedAt",
+  //     "avgRating",
+  //     "previewImage",
+  //   ],
+  // });
 
-  return res.json(spots);
+  return res.json({ requestBody: 'fixedtest' });
 });
 
-return res.json(spots);
+
 
 module.exports = router;
